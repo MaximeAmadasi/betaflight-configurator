@@ -37,15 +37,18 @@ body {
     font-weight: bold;
     margin-top: 20px;
 }
-#webview_troubleshooting {
+#webview_troubleshooting, #permissions {
     display: none;
     background: #ffffff;
     padding: 20px;
 }
+#permissions {
+    height: calc(100% - 56px);
+}
 #webview_apps {
     list-style: inside;
 }
-#webview_step_btn1, #webview_step_btn2 {
+#webview_step_btn1, #webview_step_btn2, #permissions_btn {
     margin-top: 10px;
 }
 #webview_step_btn2 {

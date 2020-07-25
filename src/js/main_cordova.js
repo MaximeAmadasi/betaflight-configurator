@@ -197,15 +197,12 @@ const WEBVIEW = {
             checkAvailability(id, i);
         }
     },
-    exec: function() {
+    exec: function(callback) {
         const self = this;
-        $('#webview_troubleshooting').hide();
-        $('#loading').show();
         self.chromeVersion = window.navigator.appVersion.replace(/.*Chrome\/([0-9.]*).*/, "$1");
         self.majorChromeVersion = self.chromeVersion.split('.')[0];
         if (self.majorChromeVersion >= REQUIRED_WEBVIEW_VERSION) {
-            navigator.splashscreen.show();
-            document.location.href = 'main.html';
+            callback();
         } else {
             navigator.splashscreen.hide();
             self.checkInstalledApps(function() {
@@ -220,6 +217,61 @@ const WEBVIEW = {
     },
 };
 
+const REQUIRED_PERMISSIONS = [
+    'android.permission.WRITE_EXTERNAL_STORAGE',
+    'android.permission.ACCESS_COARSE_LOCATION',
+];
+const PERMISSIONS = {
+    unauthorizedPermissions: [],
+    check: function(callback) {
+        const self = this;
+        window.plugins.Permission.has(REQUIRED_PERMISSIONS, function(results) {
+            console.log(results);
+            for (let i=0; i<REQUIRED_PERMISSIONS.length; i++) {
+                if (!results[REQUIRED_PERMISSIONS[i]]) {
+                    self.unauthorizedPermissions.push(REQUIRED_PERMISSIONS[i]);
+                }
+                if (i === REQUIRED_PERMISSIONS.length-1) {
+                    if (self.unauthorizedPermissions.length > 0) {
+                        console.log(self.unauthorizedPermissions);
+                        self.request(callback);
+                    } else {
+                        callback();
+                    }
+                }
+            }
+        }, function() {
+            console.log('error when checking permissions');
+        });
+    },
+    request: function(callback) {
+        const self = this;
+        window.plugins.Permission.request(self.unauthorizedPermissions, function(results) {
+            console.log(results);
+            const finalUnauthorizedPermissions = [];
+            for (let i=0; i<self.unauthorizedPermissions.length; i++) {
+                if (!results[self.unauthorizedPermissions[i]]) {
+                    finalUnauthorizedPermissions.push(self.unauthorizedPermissions[i]);
+                }
+                if (i === self.unauthorizedPermissions.length-1) {
+                    if (finalUnauthorizedPermissions.length > 0) {
+                        self.unauthorizedPermissions = finalUnauthorizedPermissions;
+                        self.rerequest();
+                    } else {
+                        self.unauthorizedPermissions = [];
+                        callback();
+                    }
+                }
+            }
+        }, alert)
+    },
+    rerequest: function() {
+        $('#permissions').show();
+        $('#loading').hide();
+        navigator.splashscreen.hide();
+    },
+};
+
 
 const cordovaApp = {
     initialize: function() {
@@ -229,9 +281,19 @@ const cordovaApp = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
     onDeviceReady: function() {
+        $('#webview_troubleshooting').hide();
+        $('#permissions').hide();
+        $('#loading').show();
         i18n.init(function() {
             i18n.localizePage();
-            WEBVIEW.exec();
+            $('p[i18n="cordovaCheckingPermission"]').hide();
+            WEBVIEW.exec(function() {
+                $('p[i18n="cordovaCheckingWebview"]').hide();
+                $('p[i18n="cordovaCheckingPermission"]').show();
+                PERMISSIONS.check(function() {
+                    document.location.href = 'main.html';
+                });
+            });
         });
     },
 };
@@ -248,4 +310,11 @@ $(WEBVIEW.htmlElements.webview_step_btn2).on('click', function() {
     } else {
         window.cordova.plugins.settings.open('settings');
     }
+});
+$('#permissions_btn').on('click', function() {
+    $('#permissions').hide();
+    $('#loading').show();
+    PERMISSIONS.check(function() {
+        document.location.href = 'main.html';
+    });
 });

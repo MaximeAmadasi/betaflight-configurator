@@ -5785,6 +5785,18 @@
     "cordovaCheckingWebview": {
         "message": "Checking webview applications ..."
     },
+    "cordovaCheckingPermission": {
+        "message": "Checking permissions ..."
+    },
+    "cordovaPermissions": {
+        "message": "Required permissions"
+    },
+    "cordovaPermissionsMsg": {
+        "message": "You must allow the requested permissions to use the Betaflight configurator. These permissions allow the configurator to write and read your internal storage and to use bluetooth."
+    },
+    "cordovaPermissionsBtn": {
+        "message": "Allow the requested permissions"
+    },
     "cordovaIncompatibleWebview": {
         "message": "Incompatible webview"
     },

@@ -14,6 +14,7 @@
     <div id="loading">
         <img src="images/loading-spin.svg" alt="" />
         <p i18n="cordovaCheckingWebview"></p>
+        <p i18n="cordovaCheckingPermission"></p>
     </div>
     <div id="webview_troubleshooting">
         <div class="box">
@@ -35,6 +36,17 @@
             </div>
             <div class="box_body">
                 <ul id="webview_apps"></ul>
+            </div>
+        </div>
+    </div>
+    <div id="permissions">
+        <div class="box">
+            <div class="box_titlebar warning">
+                <em class="fas fa-exclamation-triangle"></em> <span i18n="cordovaPermissions"></span>
+            </div>
+            <div class="box_body">
+                <p i18n="cordovaPermissionsMsg"></p>
+                <button id="permissions_btn" class="btn" type="button" i18n="cordovaPermissionsBtn"></button>
             </div>
         </div>
     </div>
