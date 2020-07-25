@@ -147,7 +147,7 @@ function initializeSerialBackend() {
 }
 
 function finishClose(finishedCallback) {
-    if (GUI.isCordova()) {
+    if (GUI.phone_ui) {
         UI_PHONES.reset();
     }
 
@@ -461,7 +461,7 @@ function finishOpen() {
         GUI.allowedTabs.splice(GUI.allowedTabs.indexOf('led_strip'), 1);
     }
 
-    if (GUI.isCordova()) {
+    if (GUI.phone_ui) {
         UI_PHONES.reset();
     }
 

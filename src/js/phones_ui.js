@@ -5,32 +5,36 @@ const UI_PHONES = {
     tabContainer: '.tab_container',
     tabContentContainer: '#tab-content-container',
     headerbar: '.headerbar',
+    initiated: false,
     init: function() {
         const self = this;
-        $('#menu_btn').click(function() {
-            self.openSideMenu();
-        });
-        $(this.background).click(function() {
-            self.closeSideMenu();
-        });
-        $('#tabs a').click(function() {
-            if ($('.tab_container').hasClass('reveal')) {
-                self.closeSideMenu();
-            }
-        });
-        $('#reveal_btn').click(function() {
-            self.expandHeader();
-        });
-        $(`${this.background}, ${this.tabContainer}`).swipe( {
-            swipeLeft: function() {
-                self.closeSideMenu();
-            },
-        });
-        $('#side_menu_swipe').swipe( {
-            swipeRight: function() {
+        if (!self.initiated) {
+            $('#menu_btn').click(function() {
                 self.openSideMenu();
-            },
-        });
+            });
+            $(this.background).click(function() {
+                self.closeSideMenu();
+            });
+            $('#tabs a').click(function() {
+                if ($('.tab_container').hasClass('reveal')) {
+                    self.closeSideMenu();
+                }
+            });
+            $('#reveal_btn').click(function() {
+                self.expandHeader();
+            });
+            $(`${this.background}, ${this.tabContainer}`).swipe( {
+                swipeLeft: function() {
+                    self.closeSideMenu();
+                },
+            });
+            $('#side_menu_swipe').swipe( {
+                swipeRight: function() {
+                    self.openSideMenu();
+                },
+            });
+            self.initiated = true;
+        }
     },
     initToolbar: function() {
         $('.toolbar_expand_btn').click(this.expandToolbar);

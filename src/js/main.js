@@ -227,10 +227,6 @@ function startProcess() {
         );
     });
 
-    if (GUI.isCordova()) {
-        UI_PHONES.init();
-    }
-
     const ui_tabs = $('#tabs > ul');
     $('a', ui_tabs).click(function () {
         if ($(this).parent().hasClass('active') === false && !GUI.tab_switch_in_progress) { // only initialize when the tab isn't already active

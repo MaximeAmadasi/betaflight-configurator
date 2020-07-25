@@ -40,9 +40,12 @@ const cordovaUI = {
             if (result.cordovaForceComputerUI) {
                 window.screen.orientation.lock('landscape');
                 $('body').css('zoom', self.uiZoom);
+                GUI.phone_ui = false;
             } else {
                 window.screen.orientation.lock('portrait');
                 $('body').css('zoom', 1);
+                GUI.phone_ui = true;
+                UI_PHONES.init();
             }
         });
     },

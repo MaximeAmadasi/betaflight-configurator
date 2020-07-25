@@ -11,6 +11,7 @@ var GUI_control = function () {
     this.active_tab = null;
     this.tab_switch_in_progress = false;
     this.operating_system = null;
+    this.phone_ui = false;
     this.interval_array = [];
     this.timeout_array = [];
 

@@ -41,7 +41,7 @@ TABS.vtx.initialize = function (callback) {
         // translate to user-selected language
         i18n.localizePage();
 
-        if (GUI.isCordova()) {
+        if (GUI.phone_ui) {
             UI_PHONES.initToolbar();
         }
 

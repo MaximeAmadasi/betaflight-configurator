@@ -328,7 +328,7 @@ TABS.cli.adaptPhones = function() {
         $('.backdrop').css('height', `calc(100% - ${backdropHeight}px)`);
     }
 
-    if (GUI.isCordova()) {
+    if (GUI.phone_ui) {
         UI_PHONES.initToolbar();
     }
 };
