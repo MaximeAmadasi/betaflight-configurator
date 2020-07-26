@@ -46,6 +46,7 @@ PortHandler.check = function () {
             }
 
             self.update_port_select(current_ports);
+            devicePicker.updateAvailablePorts(current_ports);
 
             // trigger callbacks (only after initialization)
             if (self.initial_ports) {
@@ -103,6 +104,7 @@ PortHandler.check = function () {
             }
 
             self.update_port_select(current_ports);
+            devicePicker.updateAvailablePorts(current_ports);
 
             // select / highlight new port, if connected -> select connected port
             if (!GUI.connected_to) {
@@ -156,11 +158,13 @@ PortHandler.check_usb_devices = function (callback) {
             if (!dfuElement.length) {
                 portPickerElement.append($('<option/>', {value: "DFU", text: "DFU", data: {isDFU: true}}));
                 portPickerElement.val('DFU').change();
+                devicePicker.updateAvailableDfu(true);
             }
             self.dfu_available = true;
         } else {
             if (dfuElement.length) {
                dfuElement.remove();
+                devicePicker.updateAvailableDfu(false);
             }
             self.dfu_available = false;
         }
