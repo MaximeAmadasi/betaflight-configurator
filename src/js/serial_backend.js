@@ -9,11 +9,11 @@ function initializeSerialBackend() {
 
     GUI.updateManualPortVisibility = function(){
         var selected_port = $('div#port-picker #port option:selected');
-        if (selected_port.data().isManual) {
-            $('#port-override-option').show();
+        if (selected_port.data().isManual && GUI.advanced_connection) {
+            $('#port-override-option').css('visibility','visible');
         }
         else {
-            $('#port-override-option').hide();
+            $('#port-override-option').css('visibility','hidden');
         }
         if (selected_port.data().isDFU) {
             $('select#baud').hide();
@@ -142,15 +142,47 @@ function initializeSerialBackend() {
         });
     });
 
+    if (GUI.isCordova()) {
+        $('#portPicker, #baudPicker, #advancedConnectionSwitch').hide();
+    } else {
+        ConfigStorage.get('advanced_connection', function (result) {
+            const enableAdvancedConnection = function () {
+                $('input.advanced_connection, span.advanced_connection').prop('title', i18n.getMessage('advancedConnectionEnabled'));
+                $('#portPicker, #baudPicker').show();
+                $('#devicePicker').hide();
+            }
+            const disableAdvancedConnection = function () {
+                $('input.advanced_connection, span.advanced_connection').prop('title', i18n.getMessage('advancedConnectionDisabled'));
+                $('#portPicker, #baudPicker').hide();
+                $('#devicePicker').show();
+            }
+            if (result.advanced_connection) {
+                GUI.advanced_connection = true;
+                $('input.advanced_connection').prop('checked', true);
+                enableAdvancedConnection();
+            } else {
+                GUI.advanced_connection = false;
+                $('input.advanced_connection').prop('checked', false);
+                disableAdvancedConnection();
+            }
+            $('input.advanced_connection').change(function () {
+                GUI.advanced_connection = $(this).is(':checked');
+                if (GUI.advanced_connection) {
+                    enableAdvancedConnection();
+                } else {
+                    disableAdvancedConnection();
+                }
+                GUI.updateManualPortVisibility();
+                ConfigStorage.set({'advanced_connection': GUI.advanced_connection});
+            });
+        });
+    }
+
     PortHandler.initialize();
     PortUsage.initialize();
 }
 
 function finishClose(finishedCallback) {
-    if (GUI.isCordova()) {
-        UI_PHONES.reset();
-    }
-
     var wasConnected = CONFIGURATOR.connectionValid;
 
     analytics.sendEvent(analytics.EVENT_CATEGORIES.FLIGHT_CONTROLLER, 'Disconnected');
@@ -174,6 +206,10 @@ function finishClose(finishedCallback) {
     GUI.allowedTabs = GUI.defaultAllowedTabsWhenDisconnected.slice();
     // close problems dialog
     $('#dialogReportProblems-closebtn').click();
+
+    if (GUI.isCordova()) {
+        UI_PHONES.reset();
+    }
 
     // Reset various UI elements
     $('span.i2c-error').text(0);
@@ -530,13 +566,19 @@ function onConnect() {
         }
     }
 
-    var sensor_state = $('#sensor-status');
+    const header_wrapper = $('.header-wrapper');
+    header_wrapper.css('display', 'flex');
+
+    const sensor_state = $('#sensor-status');
     sensor_state.show();
 
-    var port_picker = $('#portsinput');
+    const port_picker = $('#port-picker');
     port_picker.hide();
 
-    var dataflash = $('#dataflash_wrapper_global');
+    const port_override_option = $('#port-override-option');
+    port_override_option.hide();
+
+    const dataflash = $('#dataflash_wrapper_global');
     dataflash.show();
 }
 
@@ -554,16 +596,22 @@ function onClosed(result) {
     updateStatusBarVersion();
     updateTopBarVersion();
 
-    var sensor_state = $('#sensor-status');
+    const header_wrapper = $('.header-wrapper');
+    header_wrapper.hide();
+
+    const sensor_state = $('#sensor-status');
     sensor_state.hide();
 
-    var port_picker = $('#portsinput');
+    const port_picker = $('#port-picker');
     port_picker.show();
 
-    var dataflash = $('#dataflash_wrapper_global');
+    const port_override_option = $('#port-override-option');
+    port_override_option.show();
+
+    const dataflash = $('#dataflash_wrapper_global');
     dataflash.hide();
 
-    var battery = $('#quad-status_wrapper');
+    const battery = $('#quad-status_wrapper');
     battery.hide();
 
     MSP.clearListeners();

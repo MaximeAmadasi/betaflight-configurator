@@ -127,11 +127,17 @@ const chromeapiSerial = {
                 let count = 0;
                 list.devices.forEach(device => {
                     count++;
+                    let displayName;
+                    if (device.vendorId === 1155 && device.productId === 22336) {
+                        displayName = 'STMicroelectronics Virtual COM Port';
+                    } else {
+                        displayName = 'Unknown';
+                    }
                     devices.push({
                         path: `${device.vendorId}/${device.productId}`,
                         vendorId: device.vendorId,
                         productId: device.productId,
-                        displayName: `${device.vendorId}/${device.productId}`,
+                        displayName,
                     });
                     if (count === list.devices.length) {
                         if (callback) {

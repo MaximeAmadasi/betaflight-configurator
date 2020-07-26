@@ -5838,5 +5838,17 @@
     },
     "cordovaExitAppMessage": {
         "message": "Do you really want to close the configurator?"
+    },
+    "devicePickerNoAvailable": {
+        "message": "No available device"
+    },
+    "advancedConnection": {
+        "message": "Advanced connection"
+    },
+    "advancedConnectionEnabled": {
+        "message": "Advanced connection enabled"
+    },
+    "advancedConnectionDisabled": {
+        "message": "Advanced connection disabled"
     }
 }

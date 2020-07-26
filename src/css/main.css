@@ -237,28 +237,22 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 #port-picker {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-}
-
-#portsinput {
+    margin-right: 14px;
     width: 180px;
-    margin-right: 15px;
 }
 
-#portsinput .dropdown {
-    margin-bottom: 5px;
+#portPicker, #baudPicker, #devicePicker {
+    margin-bottom: 3px;
 }
 
-#port-picker .auto_connect, .gray {
+#port-picker .auto_connect, #port-picker .advanced_connection, .gray {
     color: var(--subtleAccent);
 }
 
 #port-override-option {
-    height: 76px;
-    margin-top: 7px;
     margin-right: 15px;
+    margin-bottom: 63px;
+    margin-left: auto;
 }
 
 #port-override-option label {
@@ -368,7 +362,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .header-wrapper {
-    display: flex;
+    display: none;
 }
 
 #sensor-status {
@@ -738,7 +732,7 @@ input[type="number"]::-webkit-inner-spin-button {
     }
 
     .headerbar.expand {
-        height: 154px;
+        height: 98px;
     }
 
     .headerbar.expand2 {
@@ -778,7 +772,7 @@ input[type="number"]::-webkit-inner-spin-button {
         zoom: 0.6;
     }
 
-    .logo_text, #port-picker, .header-wrapper, .flash_state, .connect_state {
+    .logo_text, #port-picker, #port-override-option, .header-wrapper, .flash_state, .connect_state {
         display: none !important;
     }
 
@@ -797,18 +791,16 @@ input[type="number"]::-webkit-inner-spin-button {
         display: flex !important;
         width: 100%;
         margin-left: 0;
-    }
-
-    #port-override-option, #portsinput {
-        flex-grow: 1;
-    }
-
-    #portsinput {
         margin-right: 0;
     }
 
-    #port-override {
-        width: calc(100% - 40px);
+    #devicePicker, #autoConnectSwitch {
+        width: auto;
+    }
+
+
+    #autoConnectSwitch {
+        padding-top: 4px;
     }
 
     .header-wrapper {
@@ -933,6 +925,12 @@ input[type="number"]::-webkit-inner-spin-button {
     overflow-y: auto;
 }
 
+@media all and (min-width: 576px) {
+    .header-wrapper {
+        margin-left: auto;
+    }
+}
+
 /** Tabs & content container (phones) **/
 @media all and (max-width: 575px) {
     #tab-content-container {
@@ -942,13 +940,13 @@ input[type="number"]::-webkit-inner-spin-button {
         height: calc(100% - 167px);
     }
     #tab-content-container.header_expanded {
-        height: calc(100% - 181px);
+        height: calc(100% - 125px);
     }
     #tab-content-container.header_expanded2 {
         height: calc(100% - 145px);
     }
     #tab-content-container.logopen.header_expanded {
-        height: calc(100% - 265px);
+        height: calc(100% - 209px);
     }
     #tab-content-container.logopen.header_expanded2 {
         height: calc(100% - 229px);
