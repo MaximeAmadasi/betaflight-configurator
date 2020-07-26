@@ -144,35 +144,21 @@ function initializeSerialBackend() {
 
     if (GUI.isCordova()) {
         $('#portPicker, #baudPicker, #advancedConnectionSwitch').hide();
+        devicePicker.init();
     } else {
         ConfigStorage.get('advanced_connection', function (result) {
-            const enableAdvancedConnection = function () {
-                $('input.advanced_connection, span.advanced_connection').prop('title', i18n.getMessage('advancedConnectionEnabled'));
-                $('#portPicker, #baudPicker').show();
-                $('#devicePicker').hide();
-            }
-            const disableAdvancedConnection = function () {
-                $('input.advanced_connection, span.advanced_connection').prop('title', i18n.getMessage('advancedConnectionDisabled'));
-                $('#portPicker, #baudPicker').hide();
-                $('#devicePicker').show();
-            }
             if (result.advanced_connection) {
                 GUI.advanced_connection = true;
                 $('input.advanced_connection').prop('checked', true);
-                enableAdvancedConnection();
             } else {
                 GUI.advanced_connection = false;
                 $('input.advanced_connection').prop('checked', false);
-                disableAdvancedConnection();
             }
+            devicePicker.init();
             $('input.advanced_connection').change(function () {
                 GUI.advanced_connection = $(this).is(':checked');
-                if (GUI.advanced_connection) {
-                    enableAdvancedConnection();
-                } else {
-                    disableAdvancedConnection();
-                }
                 GUI.updateManualPortVisibility();
+                devicePicker.toogle();
                 ConfigStorage.set({'advanced_connection': GUI.advanced_connection});
             });
         });
