@@ -282,7 +282,8 @@ var serial = {
         chrome.serial.getDevices(function (devices_array) {
             var devices = [];
             devices_array.forEach(function (device) {
-                devices.push(device.path);
+                device.type = 'serial';
+                devices.push(device);
             });
 
             callback(devices);

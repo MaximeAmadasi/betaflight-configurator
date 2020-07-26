@@ -85,9 +85,6 @@ function setupAnalytics(result) {
     }
 
     analytics.sendEvent(analytics.EVENT_CATEGORIES.APPLICATION, 'AppStart', { sessionControl: 'start' });
-
-    $('.connect_b a.connect').removeClass('disabled');
-    $('.firmware_b a.flash').removeClass('disabled');
 }
 
 function closeSerial() {
@@ -202,7 +199,6 @@ function startProcess() {
         });
     }
 
-    $('.connect_b a.connect').removeClass('disabled');
     $('#logo .version, #tab_logoversion .version').text(CONFIGURATOR.version);
     updateStatusBarVersion();
     updateTopBarVersion();

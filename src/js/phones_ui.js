@@ -31,6 +31,22 @@ const UI_PHONES = {
                 self.openSideMenu();
             },
         });
+        self.toogleRevealBtn();
+        setTimeout(function() {
+            const autoConnectWidth = $('#autoConnectSwitch').width() + 30;
+            $('#devicePicker').css('width', `calc(100% - ${autoConnectWidth}px)`);
+        }, 500);
+
+    },
+    toogleRevealBtn: function() {
+        const self = this;
+        const revealBtn = $('#reveal_btn');
+        if (!GUI.connected_to) {
+            revealBtn.hide();
+            self.expandHeader();
+        } else {
+            revealBtn.show();
+        }
     },
     initToolbar: function() {
         $('.toolbar_expand_btn').click(this.expandToolbar);
@@ -52,7 +68,7 @@ const UI_PHONES = {
             reveal = '.header-wrapper';
         } else {
             expand = 'expand';
-            headerExpanded = 'headerExpanded';
+            headerExpanded = 'header_expanded';
             reveal = '#port-picker';
         }
         if ($(self.headerbar).hasClass(expand)) {
@@ -80,8 +96,10 @@ const UI_PHONES = {
         }
     },
     reset: function() {
+        const self = this;
         $(this.tabContentContainer).removeClass('header_expanded2 header_expanded');
         $('#port-picker, .header-wrapper').removeClass('reveal');
         $(this.headerbar).removeClass('expand2 expand');
+        self.toogleRevealBtn();
     },
 };

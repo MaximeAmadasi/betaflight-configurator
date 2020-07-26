@@ -177,8 +177,9 @@ PortHandler.update_port_select = function (ports) {
     portPickerElement.empty();
 
     for (var i = 0; i < ports.length; i++) {
-        portPickerElement.append($("<option/>", {value: ports[i], text: ports[i], data: {isManual: false}}));
+        portPickerElement.append($("<option/>", {value: ports[i].path, text: ports[i].path, data: {isManual: false}}));
     }
+
 
     portPickerElement.append($("<option/>", {value: 'manual', i18n: 'portsSelectManual', data: {isManual: true}}));
     i18n.localizePage();
@@ -240,12 +241,12 @@ PortHandler.array_difference = function (firstArray, secondArray) {
 
     // create hardcopy
     for (var i = 0; i < firstArray.length; i++) {
-        cloneArray.push(firstArray[i]);
+        cloneArray.push(firstArray[i].path);
     }
 
     for (var i = 0; i < secondArray.length; i++) {
-        if (cloneArray.indexOf(secondArray[i]) != -1) {
-            cloneArray.splice(cloneArray.indexOf(secondArray[i]), 1);
+        if (cloneArray.indexOf(secondArray[i].path) != -1) {
+            cloneArray.splice(cloneArray.indexOf(secondArray[i].path), 1);
         }
     }
 

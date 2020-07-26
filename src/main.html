@@ -151,41 +151,49 @@
                 <div class="version"></div>
             </div>
         </div>
+        <div id="port-override-option">
+            <label for="port-override">
+                <span i18n="portOverrideText">Port:</span>
+                <input id="port-override" type="text" value="/dev/rfcomm0"/>
+            </label>
+        </div>
         <div id="port-picker">
-            <div id="port-override-option">
-                <label for="port-override">
-                    <span i18n="portOverrideText">Port:</span>
-                    <input id="port-override" type="text" value="/dev/rfcomm0"/>
-                </label>
+            <div id="portPicker" class="dropdown dropdown-dark">
+                <select class="dropdown-select" id="port" i18n_title="firmwareFlasherManualPort">
+                    <option value="manual">Manual</option>
+                    <!-- port list gets generated here -->
+                </select>
             </div>
-            <div id="portsinput">
-                <div class="dropdown dropdown-dark">
-                    <select class="dropdown-select" id="port" i18n_title="firmwareFlasherManualPort">
-                        <option value="manual">Manual</option>
-                        <!-- port list gets generated here -->
-                    </select>
-                </div>
-                <div class="dropdown dropdown-dark">
-                    <select class="dropdown-select" id="baud" i18n_title="firmwareFlasherBaudRate">
-                        <option value="1000000">1000000</option>
-                        <option value="500000">500000</option>
-                        <option value="250000">250000</option>
-                        <option value="115200" selected="selected">115200</option>
-                        <option value="57600">57600</option>
-                        <option value="38400">38400</option>
-                        <option value="28800">28800</option>
-                        <option value="19200">19200</option>
-                        <option value="14400">14400</option>
-                        <option value="9600">9600</option>
-                        <option value="4800">4800</option>
-                        <option value="2400">2400</option>
-                        <option value="1200">1200</option>
-                    </select>
-                </div>
-                <div id="autoConnectSwitch">
-                    <label><input class="auto_connect togglesmall" type="checkbox"/><span
-                        class="auto_connect" i18n="autoConnect"></span></label>
-                </div>
+            <div id="baudPicker" class="dropdown dropdown-dark">
+                <select class="dropdown-select" id="baud" i18n_title="firmwareFlasherBaudRate">
+                    <option value="1000000">1000000</option>
+                    <option value="500000">500000</option>
+                    <option value="250000">250000</option>
+                    <option value="115200" selected="selected">115200</option>
+                    <option value="57600">57600</option>
+                    <option value="38400">38400</option>
+                    <option value="28800">28800</option>
+                    <option value="19200">19200</option>
+                    <option value="14400">14400</option>
+                    <option value="9600">9600</option>
+                    <option value="4800">4800</option>
+                    <option value="2400">2400</option>
+                    <option value="1200">1200</option>
+                </select>
+            </div>
+            <div id="devicePicker" class="dropdown dropdown-dark">
+                <select class="dropdown-select" id="device" i18n_title="devicePickerDevice">
+                    <option i18n="devicePickerNoAvailable" value="noavailabledevice"></option>
+                    <!-- device list gets generated here -->
+                </select>
+            </div>
+            <div id="autoConnectSwitch">
+                <label><input class="auto_connect togglesmall" type="checkbox"/><span
+                    class="auto_connect" i18n="autoConnect"></span></label>
+            </div>
+            <div id="advancedConnectionSwitch">
+                <label><input class="advanced_connection togglesmall" type="checkbox"/><span
+                    class="advanced_connection" i18n="advancedConnection"></span></label>
             </div>
         </div>
         <div class="header-wrapper">
