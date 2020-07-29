@@ -9,7 +9,7 @@ var serial = {
     bytesReceived:   0,
     bytesSent:       0,
     failed:          0,
-    connectionType:  'serial', // 'serial' or 'tcp'
+    connectionType:  'serial', // 'serial' or 'tcp' or 'bluetooth'
     connectionIP:    '127.0.0.1',
     connectionPort:  2323,
 
@@ -18,14 +18,19 @@ var serial = {
 
     logHead: 'SERIAL: ',
 
-    connect: function (path, options, callback) {
+    connect: function (type, path, options, callback) {
         var self = this;
-        var testUrl = path.match(/^tcp:\/\/([A-Za-z0-9\.-]+)(?:\:(\d+))?$/)
-        if (testUrl) {
-            self.connectTcp(testUrl[1], testUrl[2], options, callback);
+        if (type === 'bluetooth') {
+            self.connectBluetooth(path, callback);
         } else {
-            self.connectSerial(path, options, callback);
+            var testUrl = path.match(/^tcp:\/\/([A-Za-z0-9\.-]+)(?:\:(\d+))?$/)
+            if (testUrl) {
+                self.connectTcp(testUrl[1], testUrl[2], options, callback);
+            } else {
+                self.connectSerial(path, options, callback);
+            }
         }
+
     },
     connectSerial: function (path, options, callback) {
         var self = this;
@@ -238,6 +243,60 @@ var serial = {
             });
         });
     },
+    connectBluetooth: function(id, callback) {
+        const self = this;
+        self.openRequested = true;
+        self.connectionType = 'bluetooth';
+        self.logHead = 'BLUETOOTH: ';
+        bluetooth.connect(id, function(device) {
+            device.connectionId = 1;
+            if (device && !self.openCanceled) {
+                self.connected = true;
+                self.connectionId = id; // Store the device id as the connection id
+                self.bitrate = 0;
+                self.bytesReceived = 0;
+                self.bytesSent = 0;
+                self.failed = 0;
+                self.openRequested = false;
+
+                self.onReceive.addListener(function log_bytesReceived(info) {
+                    self.bytesReceived += info.data.byteLength;
+                });
+
+                self.onReceiveError.addListener(function watch_for_on_receive_errors(info) {
+
+                });
+
+                console.log(`BLUETOOTH: Connected to ${id}`);
+
+                if (callback) callback(device);
+            } else if (device && self.openCanceled) {
+                // connection opened, but this connect sequence was canceled
+                // we will disconnect without triggering any callbacks
+                self.connectionId = device.connectionId;
+                console.log(`BLUETOOTH: Connection to ${id}, but request was canceled, disconnecting`);
+
+                // some bluetooth dongles/dongle drivers really doesn't like to be closed instantly, adding a small delay
+                setTimeout(function initialization() {
+                    self.openRequested = false;
+                    self.openCanceled = false;
+                    self.disconnect(function resetUI() {
+                        if (callback) callback(false);
+                    });
+                }, 150);
+            } else if (self.openCanceled) {
+                // connection didn't open and sequence was canceled, so we will do nothing
+                console.log('BLUETOOTH: Connection didn\'t open and request was canceled');
+                self.openRequested = false;
+                self.openCanceled = false;
+                if (callback) callback(false);
+            } else {
+                self.openRequested = false;
+                console.log('BLUETOOTH: Failed to open serial port');
+                if (callback) callback(false);
+            }
+        });
+    },
     disconnect: function (callback) {
         var self = this;
         self.connected = false;
@@ -254,7 +313,14 @@ var serial = {
                 self.onReceiveError.removeListener(self.onReceiveError.listeners[i]);
             }
 
-            var disconnectFn = (self.connectionType == 'serial') ? chrome.serial.disconnect : chrome.sockets.tcp.close;
+            let disconnectFn;
+            if (self.connectionType === 'bluetooth') {
+                disconnectFn = bluetooth.disconnect;
+            } else if (self.connectionType === 'tcp') {
+                disconnectFn = chrome.sockets.tcp.close;
+            } else {
+                disconnectFn = chrome.serial.disconnect;
+            }
             disconnectFn(this.connectionId, function (result) {
                 if (chrome.runtime.lastError) {
                     console.error(chrome.runtime.lastError.message);
@@ -290,7 +356,7 @@ var serial = {
         });
     },
     getInfo: function (callback) {
-        var chromeType = (this.connectionType == 'serial') ? chrome.serial : chrome.sockets.tcp;
+        const chromeType = serial.getType();
         chromeType.getInfo(this.connectionId, callback);
     },
     getControlSignals: function (callback) {
@@ -317,7 +383,7 @@ var serial = {
                return;
             }
 
-            var sendFn = (self.connectionType == 'serial') ? chrome.serial.send : chrome.sockets.tcp.send;
+            const sendFn = self.getType().send;
             sendFn(self.connectionId, data, function (sendInfo) {
                 if (sendInfo === undefined) {
                     console.log('undefined send error');
@@ -387,12 +453,12 @@ var serial = {
         listeners: [],
 
         addListener: function (function_reference) {
-            var chromeType = (serial.connectionType == 'serial') ? chrome.serial : chrome.sockets.tcp;
+            const chromeType = serial.getType();
             chromeType.onReceive.addListener(function_reference);
             this.listeners.push(function_reference);
         },
         removeListener: function (function_reference) {
-            var chromeType = (serial.connectionType == 'serial') ? chrome.serial : chrome.sockets.tcp;
+            const chromeType = serial.getType();
             for (var i = (this.listeners.length - 1); i >= 0; i--) {
                 if (this.listeners[i] == function_reference) {
                     chromeType.onReceive.removeListener(function_reference);
@@ -407,12 +473,12 @@ var serial = {
         listeners: [],
 
         addListener: function (function_reference) {
-            var chromeType = (serial.connectionType == 'serial') ? chrome.serial : chrome.sockets.tcp;
+            const chromeType = serial.getType();
             chromeType.onReceiveError.addListener(function_reference);
             this.listeners.push(function_reference);
         },
         removeListener: function (function_reference) {
-            var chromeType = (serial.connectionType == 'serial') ? chrome.serial : chrome.sockets.tcp;
+            const chromeType = serial.getType();
             for (var i = (this.listeners.length - 1); i >= 0; i--) {
                 if (this.listeners[i] == function_reference) {
                     chromeType.onReceiveError.removeListener(function_reference);
@@ -426,5 +492,17 @@ var serial = {
     emptyOutputBuffer: function () {
         this.outputBuffer = [];
         this.transmitting = false;
-    }
+    },
+    getType: function() {
+        const self = this;
+        let fn;
+        if (self.connectionType === 'bluetooth') {
+            fn = bluetooth;
+        } else if (self.connectionType === 'tcp') {
+            fn = chrome.sockets.tcp;
+        } else {
+            fn = chrome.serial;
+        }
+        return fn;
+    },
 };

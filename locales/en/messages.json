@@ -5862,5 +5862,8 @@
     },
     "advancedConnectionDisabled": {
         "message": "Advanced connection disabled"
+    },
+    "bluetoothTitle": {
+        "message": "Bluetooth devices"
     }
 }

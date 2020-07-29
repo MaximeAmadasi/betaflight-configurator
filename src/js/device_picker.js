@@ -4,23 +4,23 @@ const devicePicker = {
     devices: [],
     ports: [],
     dfuState: false,
-    bluetoothDevices: [],
+    bluetoothState: false,
 
     updateButtons: function() {
         const self = this;
-        if (!GUI.advanced_connection) {
+        if (!GUI.advanced_connection && !serial.connected) {
             if (self.devices.length === 0) {
-                $('.connect_b a.connect, .firmware_b a.flash').addClass('disabled');
+                $('.connect_b a.connect, .firmware_b a.flash').addClass('disabled').removeClass('bluetooth');
             } else {
                 const selectedDevice = $('div#port-picker #device option:selected');
                 if (selectedDevice.attr('type') === 'dfu') {
-                    $('.connect_b a.connect').addClass('disabled');
+                    $('.connect_b a.connect').addClass('disabled').removeClass('bluetooth');
                     $('.firmware_b a.flash').removeClass('disabled');
                 } else if (selectedDevice.attr('type') === 'bluetooth') {
                     $('.firmware_b a.flash').addClass('disabled');
-                    $('.connect_b a.connect').removeClass('disabled');
+                    $('.connect_b a.connect').removeClass('disabled').addClass('bluetooth');
                 } else {
-                    $('.connect_b a.connect, .firmware_b a.flash').removeClass('disabled');
+                    $('.connect_b a.connect, .firmware_b a.flash').removeClass('disabled').removeClass('bluetooth');
                 }
             }
         }
@@ -57,8 +57,8 @@ const devicePicker = {
 
     updateDevices: function() {
         const self = this;
-        const oldDevices = self.devices;
-        self.devices = self.ports.concat(self.bluetoothDevices);
+        self.devices = [];
+        self.devices = self.devices.concat(self.ports);
         if (self.dfuState) {
             self.devices.push({
                 type: 'dfu',
@@ -66,7 +66,15 @@ const devicePicker = {
                 path: 'DFU',
             });
         }
+        if (self.bluetoothState) {
+            self.devices.push({
+                type: 'bluetooth',
+                displayName: 'Bluetooth',
+                path: 'bluetooth',
+            });
+        }
         const devicePickerElement = $("div#port-picker #device");
+        const selectedDevice = $('div#port-picker #device option:selected').val();
         devicePickerElement.empty();
         if (self.devices.length === 0) {
             devicePickerElement.append('<option i18n="devicePickerNoAvailable" value="nodeviceavailable"></option>');
@@ -75,6 +83,9 @@ const devicePicker = {
         } else {
             for (let i=0; i<self.devices.length; i++) {
                 devicePickerElement.append(`<option value="${self.devices[i].path}" type="${self.devices[i].type}">${self.devices[i].displayName}</option>`)
+                if (self.devices[i].path === selectedDevice && selectedDevice !== 'bluetooth') {
+                    $(`div#port-picker #device option[value="${self.devices[i].path}"]`).prop('selected', true);
+                }
                 if (i === self.devices.length-1) {
                     $('div#port-picker #device').trigger('change');
                 }
@@ -83,26 +94,17 @@ const devicePicker = {
     },
     updateAvailablePorts: function(ports) {
         const self = this;
-        self.ports = [];
-        if (ports.length > 0) {
-            for (let i=0; i<ports.length; i++) {
-                ports[i].type = 'serial';
-                self.ports.push(ports[i]);
-                if (i === ports.length-1) {
-                    self.updateDevices();
-                }
-            }
-        } else {
-            self.updateDevices();
-        }
+        self.ports = ports;
+        self.updateDevices();
     },
     updateAvailableDfu: function(state) {
         const self = this;
         self.dfuState = state;
         self.updateDevices();
     },
-    updateAvailableBluetoothDevices: function() {
+    updateAvailableBluetooth: function(state) {
         const self = this;
+        self.bluetoothState = state;
         self.updateDevices();
     },
 

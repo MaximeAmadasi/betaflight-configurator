@@ -133,8 +133,8 @@ const chromeapiSerial = {
                     } else {
                         displayName = 'Unknown';
                     }
-                    if ((device.vendorId !== 1155 && device.productId !== 57105) &&
-                        (device.vendorId !== 10473 && device.productId !== 393)) {
+                    if (!((device.vendorId === 1155 && device.productId === 57105) ||
+                        (device.vendorId === 10473 && device.productId === 393))) {
                         devices.push({
                             path: `${device.vendorId}/${device.productId}`,
                             vendorId: device.vendorId,

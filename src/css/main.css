@@ -325,6 +325,11 @@ input[type="number"]::-webkit-inner-spin-button {
     background-position: center 6px;
 }
 
+.connect_b a.connect.bluetooth {
+    background-size: 23px;
+    background-image: url(../images/icons/cf_icon_bluetooth_white.svg);
+}
+
 .firmware_b a.flash.disabled, .connect_b a.connect.disabled {
     background-color: #808080;
     pointer-events: none;
@@ -347,6 +352,10 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .connect_b a.connect.active {
     background-image: url(../images/icons/cf_icon_usb1_white.svg);
+}
+
+.connect_b a.connect.active.bluetooth {
+    background-image: url(../images/icons/cf_icon_bluetooth_white.svg);
 }
 
 .firmware_b a.flash.active:hover, .connect_b a.connect.active:hover {
@@ -2339,6 +2348,23 @@ input {
 
 .noUi-connect {
     box-shadow: none;
+}
+
+/** Bluetooth dialog **/
+.dialogBluetooth .buttons {
+    position: absolute;
+    bottom: 5px;
+    right: 3px;
+}
+
+.dialogBluetooth .dialogBluetooth-loader {
+    position: absolute;
+    width: calc(100% - 2em);
+    height: calc(100% - 2em);
+    background-image: url(../images/loading-spin.svg);
+    background-repeat: no-repeat;
+    background-position: center 45%;
+    display: none;
 }
 
 /** Responsive grid **/

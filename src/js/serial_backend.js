@@ -49,28 +49,18 @@ function initializeSerialBackend() {
 
             GUI.configuration_loaded = false;
 
-            var selected_baud = parseInt($('div#port-picker #baud').val());
-            const selectedPort = $('div#port-picker #port option:selected');
+            let connectionType = 'wired';
 
-            let portName;
-            if (selectedPort.data().isManual) {
-                portName = $('#port-override').val();
-            } else {
-                portName = String($('div#port-picker #port').val());
-            }
-
-            if (selectedPort.data().isDFU) {
-                $('select#baud').hide();
-            } else if (portName !== '0') {
+            function connection() {
                 if (!clicks) {
                     console.log(`Connecting to: ${portName}`);
                     GUI.connecting_to = portName;
 
                     // lock port select & baud while we are connecting / connected
-                    $('div#port-picker #port, div#port-picker #baud, div#port-picker #delay').prop('disabled', true);
+                    $('div#port-picker #port, div#port-picker #baud, div#port-picker #delay, div#port-picker #device').prop('disabled', true);
                     $('div.connect_controls div.connect_state').text(i18n.getMessage('connecting'));
 
-                    serial.connect(portName, {bitrate: selected_baud}, onOpen);
+                    serial.connect(connectionType, portName, {bitrate: selected_baud}, onOpen);
 
                     toggleStatus();
                 } else {
@@ -88,6 +78,37 @@ function initializeSerialBackend() {
                     }
 
                     mspHelper.setArmingEnabled(true, false, onFinishCallback);
+                }
+            }
+
+            const selectedDevice = $('div#port-picker #device option:selected');
+            let portName;
+            if (!GUI.advanced_connection && selectedDevice.attr('type') === 'bluetooth') {
+                connectionType = 'bluetooth';
+                if (GUI.connected_to) {
+                    connection();
+                } else {
+                    bluetooth.selectDevice(function(deviceId) {
+                        if (deviceId) {
+                            portName = deviceId;
+                            connection();
+                        }
+                    });
+                }
+            } else {
+                const selectedPort = $('div#port-picker #port option:selected');
+                var selected_baud = parseInt($('div#port-picker #baud').val());
+
+                if (selectedPort.data().isManual) {
+                    portName = $('#port-override').val();
+                } else {
+                    portName = String($('div#port-picker #port').val());
+                }
+
+                if (selectedPort.data().isDFU) {
+                    $('select#baud').hide();
+                } else if (portName !== '0') {
+                    connection();
                 }
             }
        }
@@ -166,6 +187,8 @@ function initializeSerialBackend() {
 
     PortHandler.initialize();
     PortUsage.initialize();
+
+    bluetooth.init();
 }
 
 function finishClose(finishedCallback) {
@@ -204,7 +227,7 @@ function finishClose(finishedCallback) {
         $('span.cpu-load').text('');
 
     // unlock port select & baud
-    $('div#port-picker #port').prop('disabled', false);
+    $('div#port-picker #port, div#port-picker #device').prop('disabled', false);
     if (!GUI.auto_connect) $('div#port-picker #baud').prop('disabled', false);
 
     // reset connect / disconnect button
@@ -339,7 +362,7 @@ function abortConnect() {
     $('div#connectbutton a.connect').removeClass('active');
 
     // unlock port select & baud
-    $('div#port-picker #port, div#port-picker #baud, div#port-picker #delay').prop('disabled', false);
+    $('div#port-picker #port, div#port-picker #baud, div#port-picker #delay, div#port-picker #device').prop('disabled', false);
 
     // reset data
     $('div#connectbutton a.connect').data("clicks", false);
@@ -486,6 +509,8 @@ function finishOpen() {
     if (GUI.isCordova()) {
         UI_PHONES.reset();
     }
+
+    bluetooth.closeModal();
 
     onConnect();
 
@@ -705,7 +730,8 @@ function have_sensor(sensors_detected, sensor_code) {
 
 function startLiveDataRefreshTimer() {
     // live data refresh
-    GUI.timeout_add('data_refresh', function () { update_live_status(); }, 100);
+    //GUI.timeout_add('data_refresh', function () { update_live_status(); }, 100);
+    update_live_status();
 }
 
 function update_live_status() {
@@ -785,8 +811,8 @@ function update_live_status() {
     }
 
     statuswrapper.show();
-    GUI.timeout_remove('data_refresh');
-    startLiveDataRefreshTimer();
+    //GUI.timeout_remove('data_refresh');
+    //startLiveDataRefreshTimer();
 }
 
 function specificByte(num, pos) {
