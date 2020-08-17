@@ -510,8 +510,6 @@ function finishOpen() {
         UI_PHONES.reset();
     }
 
-    bluetooth.closeModal();
-
     onConnect();
 
     GUI.selectDefaultTabWhenConnected();

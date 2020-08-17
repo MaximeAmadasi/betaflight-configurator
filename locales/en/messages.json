@@ -5865,5 +5865,8 @@
     },
     "bluetoothTitle": {
         "message": "Bluetooth devices"
+    },
+    "bluetoothScanning": {
+        "message": "Scanning Bluetooth devices ..."
     }
 }

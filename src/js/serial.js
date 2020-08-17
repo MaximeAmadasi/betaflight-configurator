@@ -249,10 +249,10 @@ var serial = {
         self.connectionType = 'bluetooth';
         self.logHead = 'BLUETOOTH: ';
         bluetooth.connect(id, function(device) {
-            device.connectionId = 1;
             if (device && !self.openCanceled) {
                 self.connected = true;
                 self.connectionId = id; // Store the device id as the connection id
+                device.connectionId = id;
                 self.bitrate = 0;
                 self.bytesReceived = 0;
                 self.bytesSent = 0;
@@ -264,7 +264,15 @@ var serial = {
                 });
 
                 self.onReceiveError.addListener(function watch_for_on_receive_errors(info) {
+                    console.log(`Bluetooth fatal error: source ${info.source}`);
+                    FC.CONFIG.armingDisabled = false;
+                    FC.CONFIG.runawayTakeoffPreventionDisabled = false;
 
+                    if (GUI.connected_to || GUI.connecting_to) {
+                        $('a.connect').click();
+                    } else {
+                        self.disconnect();
+                    }
                 });
 
                 console.log(`BLUETOOTH: Connected to ${id}`);
@@ -273,7 +281,8 @@ var serial = {
             } else if (device && self.openCanceled) {
                 // connection opened, but this connect sequence was canceled
                 // we will disconnect without triggering any callbacks
-                self.connectionId = device.connectionId;
+                self.connectionId = id;
+                device.connectionId = id;
                 console.log(`BLUETOOTH: Connection to ${id}, but request was canceled, disconnecting`);
 
                 // some bluetooth dongles/dongle drivers really doesn't like to be closed instantly, adding a small delay

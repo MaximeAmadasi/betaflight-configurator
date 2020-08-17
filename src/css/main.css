@@ -2363,8 +2363,30 @@ input {
     height: calc(100% - 2em);
     background-image: url(../images/loading-spin.svg);
     background-repeat: no-repeat;
-    background-position: center 45%;
+    background-position: center 40%;
     display: none;
+    text-align: center;
+}
+
+.dialogBluetooth .dialogBluetooth-loader p {
+    position: absolute;
+    top: 55%;
+    width: 100%;
+    font-weight: bold;
+}
+
+.dialogBluetooth .dialogBluetooth-content div {
+    height: 35px;
+    line-height: 35px;
+    padding-left: 30px;
+    background-image: url(../images/icons/cf_icon_bluetooth_blue.svg);
+    background-repeat: no-repeat;
+    background-position: left 50%;
+    background-size: 4%;
+    border-top: 1px solid #d3d3d34d;
+}
+.dialogBluetooth .dialogBluetooth-content div:first-child {
+    border-top: none;
 }
 
 /** Responsive grid **/

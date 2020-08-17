@@ -9,10 +9,6 @@ const bluetooth = {
         service: 'ffe0',
         readCharacteristic: 'ffe1',
         writeCharacteristic: 'ffe1',
-    }, {
-        service: '180f',
-        readCharacteristic: '2a19',
-        writeCharacteristic: '2a19',
     }],
 
     available: false,
@@ -30,6 +26,9 @@ const bluetooth = {
                 self.selectDeviceCallback = null;
             }
         });
+        $('.dialogBluetooth-refreshbtn').click(function() {
+            self.selectDevice();
+        });
         if (GUI.isCordova()) {
             self._configureAsCordova();
         }
@@ -40,11 +39,15 @@ const bluetooth = {
     getDevices: null,
     selectDevice: function(callback) {
         const self = this;
-        self.selectDeviceCallback = callback;
+        if (callback) {
+            self.selectDeviceCallback = callback;
+        }
         $('.dialogBluetooth h3, .dialogBluetooth .content, .dialogBluetooth .buttons').hide();
         $('.dialogBluetooth .dialogBluetooth-loader').show();
         const dialogBluetooth = $('.dialogBluetooth')[0];
-        dialogBluetooth.showModal();
+        if (!$('.dialogBluetooth').is(':visible')) {
+            dialogBluetooth.showModal();
+        }
 
         function end() {
             $('.dialogBluetooth h3, .dialogBluetooth .content, .dialogBluetooth .buttons').show();
@@ -71,9 +74,11 @@ const bluetooth = {
         const self = this;
         if (self.selectDeviceCallback) {
             self.selectDeviceCallback(id);
+            self.selectDeviceCallback = null;
         }
         $('.dialogBluetooth h3, .dialogBluetooth .content, .dialogBluetooth .buttons').hide();
         $('.dialogBluetooth .dialogBluetooth-loader').show();
+        self.closeModal();
     },
     closeModal: function() {
         const dialogBluetooth = $('.dialogBluetooth')[0];
@@ -126,34 +131,51 @@ bluetooth._configureAsCordova = function() {
         ble.connect(id, function(device) {
             self.devicesInfo = device;
             if (device.characteristics.length === 0) {
-                callback(false);
+                console.log('no bluetooth characteristics');
+                self.disconnect(id, function() {
+                    callback(false);
+                });
             } else {
                 function setMtu() {
                     ble.requestMtu(id, 512, function() {
                         setPriority();
-                    }, function() {
+                    }, function(err) {
                         console.log('requestMtu failed');
+                        console.log(err);
+                        self.disconnect(id, function() {
+                            callback(false);
+                        });
                     });
                 }
                 function setPriority() {
                     ble.requestConnectionPriority(id, 'high', function() {
                         finish();
-                    }, function() {
+                    }, function(err) {
                         console.log('requestConnectionPriority failed');
+                        console.log(err);
+                        self.disconnect(id, function() {
+                            callback(false);
+                        });
                     });
                 }
                 function finish() {
                     if (self.serviceUuid && self.writeCharacteristicUuid && self.readCharacteristicUuid) {
                         ble.startNotification(id, self.serviceUuid, self.readCharacteristicUuid, function(data) {
                             self.onReceive.receiveData(data);
-                        }, function() {
+                        }, function(err) {
+                            console.log('startNotification error');
+                            console.log(err);
                             self.onReceiveError.receiveError({
                                 error: 'undefined',
+                                source: 'startNotification',
                             });
                         });
                         callback(device);
                     } else {
-                        callback(false);
+                        console.log('no service or no characterictics');
+                        self.disconnect(id, function() {
+                            callback(false);
+                        });
                     }
                 }
 
@@ -187,7 +209,9 @@ bluetooth._configureAsCordova = function() {
                 checkService();
             }
 
-        }, function() {
+        }, function(err) {
+            console.log('connect error');
+            console.log(err);
             if (!serial.connected) {
                 callback(false);
             }
@@ -200,7 +224,9 @@ bluetooth._configureAsCordova = function() {
         ble.disconnect(id, function(success) {
             self.devicesInfo = null;
             callback(success);
-        }, function() {
+        }, function(err) {
+            console.log('disconnect error');
+            console.log(err);
             if (serial.connected) {
                 callback(false);
             }
@@ -230,11 +256,14 @@ bluetooth._configureAsCordova = function() {
         const self = bluetooth;
         ble.writeWithoutResponse(id, self.serviceUuid, self.writeCharacteristicUuid, data, function(success) {
             callback({
-                byteSend: data.byteLength >> 1,
+                bytesSend: data.byteLength,
             });
-        }, function() {
+        }, function(err) {
+            console.log('writeWithoutResponse error');
+            console.log(err);
             self.onReceiveError.receiveError({
                 error: 'undefined',
+                source: 'writeWithoutResponse',
             });
         });
     };
